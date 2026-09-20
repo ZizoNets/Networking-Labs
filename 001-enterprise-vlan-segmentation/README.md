@@ -21,6 +21,9 @@ The network is designed from scratch using VLAN segmentation, VLSM addressing, L
 * Centralize Inter-VLAN Routing on a Layer 3 switch.
 * Provide connectivity to internal servers and the external network.
 
+<img width="1719" height="1164" alt="lab1" src="https://github.com/user-attachments/assets/c10dff3d-f7d2-4916-b4bd-29c6c18e5452" />
 
-###Environment: GNS3 · Cisco IOS
+
+
+### Environment: GNS3 · Cisco IOS
 
