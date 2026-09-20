@@ -1,4 +1,6 @@
 # Design
+<img width="1719" height="1164" alt="lab1" src="https://github.com/user-attachments/assets/f1b71665-38d8-4970-80d9-5ded356516d8" />
+
 
 ## 1. Topology
 
