@@ -22,5 +22,5 @@ The network is designed from scratch using VLAN segmentation, VLSM addressing, L
 * Provide connectivity to internal servers and the external network.
 
 
--Environment: GNS3 · Cisco IOS
+###Environment: GNS3 · Cisco IOS
 
