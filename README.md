@@ -8,7 +8,7 @@ The main objective of this repository is to build a structured collection of pra
 
 ## What you will find here
 
-The repository contains:
+This repository contains:
 
 * Practical networking laboratories based on real-world enterprise scenarios.
 * Network topologies and addressing plans.
