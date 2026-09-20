@@ -29,10 +29,10 @@ The network was designed and implemented from scratch based on a real-world styl
 
 The exercise was based on **Ferralia Industrial, S.L.**, a Spanish company dedicated to the manufacturing and distribution of industrial components such as bearings, hydraulic fittings, and machined parts.
 
-The central office network was designed for **46 users** distributed across six departments:
+The central office network was designed for **48 devices** distributed across six departments:
 
 * Sales : 15 users
-* IT : 7 users
+* IT : 7 users + 2 servers
 * Administration : 8 users
 * Finance : 6 users
 * Human Resources : 4 users
