@@ -31,12 +31,12 @@ The exercise was based on **Ferralia Industrial, S.L.**, a Spanish company dedic
 
 The central office network was designed for **46 users** distributed across six departments:
 
-* Sales — 15 users
-* IT — 7 users
-* Administration — 8 users
-* Finance — 6 users
-* Human Resources — 4 users
-* Management — 6 users
+* Sales : 15 users
+* IT : 7 users
+* Administration : 8 users
+* Finance : 6 users
+* Human Resources : 4 users
+* Management : 6 users
 
 The IT department also hosts two internal servers providing ERP and file-sharing services.
 
