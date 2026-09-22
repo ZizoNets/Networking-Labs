@@ -2,6 +2,8 @@
 
 A Cisco networking lab simulating the network infrastructure of a mid-sized industrial company.
 
+<img width="1719" height="1164" alt="lab1" src="https://github.com/user-attachments/assets/c10dff3d-f7d2-4916-b4bd-29c6c18e5452" />
+
 The network was designed and implemented from scratch based on a real-world style network engineering scenario. The exercise provided the company requirements, available equipment, IP address block, and technical constraints, while the network architecture, VLAN structure, VLSM addressing, topology, and routing design were developed as part of the lab.
 
 ### Technologies & Concepts
@@ -23,7 +25,7 @@ The network was designed and implemented from scratch based on a real-world styl
 * Design the IPv4 addressing plan using VLSM.
 * Configure and verify the complete network from scratch.
 
-<img width="1719" height="1164" alt="lab1" src="https://github.com/user-attachments/assets/c10dff3d-f7d2-4916-b4bd-29c6c18e5452" />
+
 
 ### Lab Scenario
 
