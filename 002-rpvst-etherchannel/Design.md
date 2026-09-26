@@ -1,175 +1,175 @@
-# Design
+# Redundant LAN with RSTP & EtherChannel
 
-<img width="1565" height="1102" alt="lab002" src="https://github.com/user-attachments/assets/bb362bed-21a3-4b17-984a-0145367c7cbf" />
+A Cisco networking lab focused on building a redundant switched network using Rapid PVST+, EtherChannel and Layer 3 switching.
 
-## 1. Topology
+<img width="1565" height="1102" alt="lab002" src="https://github.com/user-attachments/assets/8cf24dcd-efd2-424e-9fa2-1174ae18f496" />
 
-The site uses a redundant Layer 2 topology between `BackboneSW`, `SW1`, `SW2` and `SW3`. There are several paths between the switches, so Rapid PVST+ is used to prevent Layer 2 loops while keeping redundant paths available.
+## 1. Lab Scenario
 
-The links between `BackboneSW` and `SW1`, and between `BackboneSW` and `SW2`, are bundled into EtherChannels. The remaining inter-switch connections are individual 802.1Q trunks.
+This lab continues from **Lab 001**, where we built the network for Ferralia Industrial, S.L. The company is now adding a small site consisting of an office and an industrial unit.
 
-The connections to `R1` and `PARTNER-SW` are routed point-to-point links. They do not carry VLANs.
+The main goal is to avoid a single cable or switch failure taking down part of the network.
 
-| From       | To         | Link type                           | VLAN(s) | Notes                        |
-| ---------- | ---------- | ----------------------------------- | ------- | ---------------------------- |
-| BackboneSW | SW1        | EtherChannel, access (Po1, 4 links) | 10      | `src-dst-ip` load balancing  |
-| BackboneSW | SW2        | EtherChannel, access (Po2, 2 links) | 20      | `src-dst-ip` load balancing  |
-| BackboneSW | SW3        | Trunk (single link)                 | 10, 20  | Native VLAN 999              |
-| SW1        | SW3        | Trunk (single link)                 | 10, 20  | Native VLAN 999              |
-| SW1        | SW2        | Trunk (single link)                 | 10, 20  | Native VLAN 999              |
-| SW2        | SW3        | Trunk (single link)                 | 10, 20  | Native VLAN 999              |
-| BackboneSW | R1         | Routed P2P                          | —       | 10.60.0.52/30                |
-| BackboneSW | PARTNER-SW | Routed P2P                          | —       | 10.60.0.48/30, out of scope  |
-| SW1        | 9× PCs     | Access                              | 10      | Office workstations          |
-| SW2        | 3× PCs     | Access                              | 20      | Industrial Unit workstations |
+The lab starts from the provided topology, equipment and `10.60.0.0/26` address block. From there, the Layer 2 redundancy, EtherChannels, STP protection, VLSM addressing and Layer 3 connections were designed and configured.
 
-The four switches form several Layer 2 loops. Rapid PVST+ selects the forwarding and blocking paths for each VLAN while keeping the redundant links available in case of a failure.
+The site contains:
 
-## 2. VLANs
+* **Office:** 9 workstations.
+* **Industrial Unit:** 3 workstations.
+* **R1:** upstream/perimeter router.
+* **PARTNER-SW:** external logistics partner network.
 
-| VLAN ID | Name       | Area                         | Devices        | Access switch |
-| ------- | ---------- | ---------------------------- | -------------- | ------------- |
-| 10      | Office     | Main office                  | 9 workstations | SW1           |
-| 20      | Industrial | Industrial Unit / shop floor | 3 workstations | SW2           |
+The partner network remains separate from the internal VLANs through a routed point-to-point connection.
 
-## 3. VLSM Addressing
+## 2. Topology
 
-The site was assigned the `10.60.0.0/26` network. The address space is divided using VLSM according to the number of hosts planned for each segment.
+The Layer 2 core consists of `BackboneSW`, `SW1`, `SW2` and `SW3`. The switches are interconnected using multiple paths, intentionally creating redundancy and several possible Layer 2 loops.
 
-For the lab, the number of configured end devices was reduced to avoid spending unnecessary time configuring and testing every host individually. The original host requirements were still taken into account when designing the subnets, so the available address space represents the intended capacity of the site and can be used for future expansion.
+Rapid PVST+ manages these paths and provides a loop-free forwarding topology while keeping redundant links available.
 
+`BackboneSW` acts as the Layer 3 core and STP root. `SW3` has no end devices and exists mainly to provide additional paths through the topology.
 
-| Segment                 | Network       | Mask            | Usable range | Broadcast | Usable hosts | Needed |
-| ----------------------- | ------------- | --------------- | ------------ | --------- | ------------ | ------ |
-| VLAN 10 Office          | 10.60.0.0/27  | 255.255.255.224 | .1 – .30     | .31       | 30           | 9 + GW |
-| VLAN 20 Industrial      | 10.60.0.32/28 | 255.255.255.240 | .33 – .46    | .47       | 14           | 3 + GW |
-| BackboneSW ↔ PARTNER-SW | 10.60.0.48/30 | 255.255.255.252 | .49 – .50    | .51       | 2            | 2      |
-| BackboneSW ↔ R1         | 10.60.0.52/30 | 255.255.255.252 | .53 – .54    | .55       | 2            | 2      |
+| From       | To         | Link type             | VLAN(s) | Notes           |
+| ---------- | ---------- | --------------------- | ------- | --------------- |
+| BackboneSW | SW1        | EtherChannel, 4 links | 10      | `src-dst-ip`    |
+| BackboneSW | SW2        | EtherChannel, 2 links | 20      | `src-dst-ip`    |
+| BackboneSW | SW3        | 802.1Q trunk          | 10, 20  | Native VLAN 999 |
+| SW1        | SW3        | 802.1Q trunk          | 10, 20  | Native VLAN 999 |
+| SW1        | SW2        | 802.1Q trunk          | 10, 20  | Native VLAN 999 |
+| SW2        | SW3        | 802.1Q trunk          | 10, 20  | Native VLAN 999 |
+| BackboneSW | R1         | Routed P2P            | —       | 10.60.0.52/30   |
+| BackboneSW | PARTNER-SW | Routed P2P            | —       | 10.60.0.48/30   |
 
-The remaining address space is:
+## 3. VLAN Design
 
-`10.60.0.56 – 10.60.0.63`
+Only two production VLANs are used:
 
-This leaves 8 addresses available for future use.
+| VLAN | Name       | Purpose                      | Access switch |
+| ---- | ---------- | ---------------------------- | ------------- |
+| 10   | Office     | Office workstations          | SW1           |
+| 20   | Industrial | Industrial Unit workstations | SW2           |
+
+The native VLAN on the trunks is `999`. It is unused for normal network traffic.
+
+## 4. VLSM Addressing
+
+The site was assigned the `10.60.0.0/26` network. VLSM was used to divide the address space according to the planned host requirements.
+
+For the lab, the number of configured end devices was reduced to avoid spending unnecessary time configuring every host individually. The original host requirements were still used when designing the subnets, so the addressing plan represents the intended capacity of the site and leaves room for future expansion.
+
+| Segment                 | Network       | Usable range | Broadcast | Hosts |
+| ----------------------- | ------------- | ------------ | --------- | ----: |
+| VLAN 10 Office          | 10.60.0.0/27  | .1 – .30     | .31       |    30 |
+| VLAN 20 Industrial      | 10.60.0.32/28 | .33 – .46    | .47       |    14 |
+| BackboneSW ↔ PARTNER-SW | 10.60.0.48/30 | .49 – .50    | .51       |     2 |
+| BackboneSW ↔ R1         | 10.60.0.52/30 | .53 – .54    | .55       |     2 |
+
+The remaining `10.60.0.56 – 10.60.0.63` is reserved for future use.
 
 All end devices use static IPv4 addressing.
 
-## 4. SVIs and Default Gateways
+## 5. Layer 3 Design
 
-`BackboneSW` performs the Layer 3 functions for the internal VLANs. IP routing is enabled and an SVI is configured for each VLAN.
+`BackboneSW` performs inter-VLAN routing using SVIs:
 
-The last usable address of each subnet is used as the default gateway.
+| SVI     | Address       | Purpose            |
+| ------- | ------------- | ------------------ |
+| VLAN 10 | 10.60.0.30/27 | Office gateway     |
+| VLAN 20 | 10.60.0.46/28 | Industrial gateway |
 
-| Device     | SVI     | IP / Mask     | Default gateway for   |
-| ---------- | ------- | ------------- | --------------------- |
-| BackboneSW | VLAN 10 | 10.60.0.30/27 | Office hosts          |
-| BackboneSW | VLAN 20 | 10.60.0.46/28 | Industrial Unit hosts |
+IP routing is enabled on `BackboneSW`.
 
-Inter-VLAN routing is handled by `BackboneSW`. `R1` only sees the routed connection from the core and does not participate directly in VLAN 10 or VLAN 20.
+The connection towards `R1` is a routed point-to-point link:
 
-## 5. EtherChannels
+```text
+BackboneSW G0/0  10.60.0.53/30
+        |
+        |
+R1 G1/0          10.60.0.54/30
+```
 
-Two groups of physical links are configured as EtherChannels.
+`BackboneSW` uses a default route towards R1:
 
-Both use static `on` mode, so there is no LACP or PAgP negotiation. The load balancing method is based on source and destination IP addresses.
+```text
+0.0.0.0/0 → 10.60.0.54
+```
 
-| Port-channel                 | Switch A : members    | Switch B : members   | Mode | Port type | VLAN |
-| ---------------------------- | --------------------- | -------------------- | ---- | --------- | ---- |
-| Po1 (BackboneSW) ↔ Po1 (SW1) | BackboneSW: G1/0–G1/3 | SW1: G2/1–G2/3, G3/0 | on   | Access    | 10   |
-| Po2 (BackboneSW) ↔ Po1 (SW2) | BackboneSW: G0/1–G0/2 | SW2: G0/3, G1/1      | on   | Access    | 20   |
+The connection to `PARTNER-SW` is also routed:
 
-The Office connection uses four physical links, while the Industrial Unit connection uses two.
+```text
+BackboneSW G0/3  10.60.0.49/30
+        |
+PARTNER-SW       10.60.0.50/30
+```
 
-## 6. Trunking and Native VLAN
+This keeps the partner network outside the internal VLAN structure.
 
-The individual inter-switch links are configured as manually defined 802.1Q trunks.
+## 6. EtherChannel Design
 
-Two additional settings are used on the trunk links:
+Two EtherChannels are used towards the core.
 
-* **Native VLAN 999** is reserved and not used for normal network traffic.
-* **`switchport nonegotiate`** disables DTP. Trunking is configured manually on both ends of the link.
+| Port-channel | Connection       | Physical links | Mode | VLAN |
+| ------------ | ---------------- | -------------: | ---- | ---- |
+| Po1          | BackboneSW ↔ SW1 |              4 | `on` | 10   |
+| Po2          | BackboneSW ↔ SW2 |              2 | `on` | 20   |
 
-VLAN 999 is not used by either of the production VLANs.
+Both use static EtherChannel configuration without LACP or PAgP.
+
+The load balancing method is:
+
+```text
+src-dst-ip
+```
+
+This allows different IP flows to be distributed across the physical members of each bundle.
 
 ## 7. Spanning Tree Design
 
-All switches run Rapid PVST+ using:
-
-`spanning-tree mode rapid-pvst`
-
-`BackboneSW` is configured as the root bridge for both VLANs.
-
-### Root Bridge
-
-BackboneSW is configured as the primary root for VLAN 10 and VLAN 20:
+All switches run Rapid PVST+:
 
 ```text
-spanning-tree vlan 10 root primary
-spanning-tree vlan 20 root primary
+spanning-tree mode rapid-pvst
 ```
 
-This makes the root bridge selection intentional rather than relying on the default STP election.
+`BackboneSW` is configured as the root bridge for VLAN 10 and VLAN 20.
 
-### Root Guard
+The redundant topology allows Rapid PVST+ to block selected paths while keeping alternative paths available if a link fails.
 
-Root Guard is used on the Layer 2 interfaces where the root bridge should remain authoritative.
+### STP Protection
 
-It is currently configured on BackboneSW's Office EtherChannel and the trunk towards SW3.
-
-The Industrial Unit EtherChannel does not currently have Root Guard applied and could be added for consistency.
-
-The routed connection to `PARTNER-SW` does not use Root Guard because it is a Layer 3 link and therefore does not participate in STP.
-
-### Loop Guard
-
-SW1 and SW2 use Loop Guard on their EtherChannel uplinks towards BackboneSW:
+Access ports connected to end devices use:
 
 ```text
-spanning-tree guard loop
+spanning-tree portfast
+spanning-tree bpduguard enable
 ```
 
-SW3 uses the global configuration:
+Root Guard is used on the appropriate Layer 2 downlinks from `BackboneSW`.
+
+Loop Guard is configured on the relevant non-root uplinks. `SW1` and `SW2` use interface-level Loop Guard, while `SW3` uses:
 
 ```text
 spanning-tree loopguard default
 ```
 
-This provides Loop Guard protection on eligible point-to-point ports without configuring the command individually on every interface.
-
-### Edge Port Protection
-
-The access ports connected to end devices use PortFast and BPDU Guard.
-
-There are 9 PC connections on SW1 and 3 on SW2.
-
-PortFast allows the ports to move directly towards the forwarding state, while BPDU Guard protects them if a BPDU is received.
-
-Both access switches also use:
+The trunk links use native VLAN `999` and DTP is disabled with:
 
 ```text
-spanning-tree portfast bpdufilter default
+switchport nonegotiate
 ```
 
-This provides BPDU filtering on PortFast-enabled ports.
+VTP is configured in transparent mode on the switches.
 
-## 8. Routed Links and Static Routes
+## 8. Verification
 
-`BackboneSW` has two Layer 3 interfaces for connections outside the internal switching domain.
+The final configuration was verified through interface, STP, EtherChannel and routing checks.
 
-| Device     | Interface | IP / Mask     | Connects to |
-| ---------- | --------- | ------------- | ----------- |
-| BackboneSW | G0/0      | 10.60.0.53/30 | R1          |
-| R1         | G1/0      | 10.60.0.54/30 | BackboneSW  |
-| BackboneSW | G0/3      | 10.60.0.49/30 | PARTNER-SW  |
+End devices were configured with static IPv4 addresses and connectivity between VLAN 10 and VLAN 20 was tested successfully.
 
-The connection to R1 is used as the default path for traffic leaving the site.
+For example, an Office host successfully pinged `10.60.0.33`, an Industrial Unit host. The successful ICMP replies confirmed that inter-VLAN routing through `BackboneSW` was working correctly.
 
-The default route on BackboneSW is:
+The lab also verifies the intended redundancy of the Layer 2 topology, with Rapid PVST+ controlling the redundant paths and EtherChannel providing bundled links towards the core.
 
-| Device     | Destination | Mask    | Next hop   |
-| ---------- | ----------- | ------- | ---------- |
-| BackboneSW | 0.0.0.0     | 0.0.0.0 | 10.60.0.54 |
+## 9. Environment
 
-`R1` and `PARTNER-SW` are outside the main scope of this lab. R1 represents the upstream network, while PARTNER-SW represents the external logistics partner.
-
-Both connections are Layer 3 hand-offs, keeping the external networks separate from the internal VLANs.
+**GNS3 · GNS3 VM · Cisco IOS**
