@@ -1,62 +1,82 @@
 # Redundant LAN with RSTP & EtherChannel Lab
 
-A Cisco networking lab about building a switched network that refuses to fall over when a cable gets unplugged.
+A Cisco networking lab focused on building a redundant switched network using RSTP, EtherChannel and Layer 3 switching.
 
 <img width="1565" height="1102" alt="lab002" src="https://github.com/user-attachments/assets/8cf24dcd-efd2-424e-9fa2-1174ae18f496" />
 
+This lab continues from **Lab 001**, where we built the network for Ferralia Industrial, S.L. This time, the company is adding a small site with an office and an industrial unit.
 
-This lab picks up where **Lab 001** left off with Ferralia Industrial, S.L. The company is opening a small satellite site — an office plus an adjoining industrial unit — and this time a single point of failure isn't an acceptable design. The scenario provided the site layout, the equipment, an IP block, and a not-so-subtle hint that "something broke last time and a truck sat idle in the yard for twenty minutes." Everything else — the redundant Layer 2 design, the EtherChannel bundling, the STP hardening, the VLSM plan, and the routed hand-offs — was designed and built from scratch.
+The main goal is simple: avoid having a single cable or switch failure take down part of the network.
 
-### Technologies & Concepts
+The project starts from the provided topology, equipment and `10.60.0.0/26` address block. From there, the Layer 2 topology, EtherChannel configuration, STP protection, VLSM addressing and Layer 3 connections were designed and configured.
 
-* VLANs & 802.1Q Trunking
-* Spanning Tree Protocol — PVST+ and Rapid PVST+ (RSTP)
-* STP Toolkit: PortFast, BPDU Guard, BPDU Filter, Root Guard, Loop Guard
-* EtherChannel (static "on" mode) & load balancing
-* Layer 3 Switching, SVIs & Inter-VLAN Routing
-* VLSM IPv4 Addressing
-* Static Routing
-* VTP Transparent Mode
-* Native VLAN hardening
+## Technologies & Concepts
 
-### Lab Objectives
+* VLANs and 802.1Q trunking
+* Rapid PVST+
+* EtherChannel load balancing
+* Layer 3 switching and SVIs
+* VLSM IPv4 addressing
+* Static routing
+* VTP
 
-* Build a Layer 2 core with no single point of failure between the distribution and access switches.
-* Run Rapid PVST+ across the whole fabric with a deliberately chosen, pinned root bridge.
-* Turn redundant parallel links into EtherChannels instead of leaving them to STP to block outright.
-* Harden every edge port and every switch-facing port against the usual STP mistakes.
-* Centralize Inter-VLAN Routing on a single core switch.
-* Design the IPv4 addressing plan with VLSM, including the WAN-style point-to-point links.
-* Hand off cleanly to a perimeter router and to an external partner network.
-* Configure and verify the whole thing end to end.
+## Lab Objectives
 
-### Lab Scenario
+* Build a redundant Layer 2 core between the distribution and access switches.
+* Use Rapid PVST+ across the network with BackboneSW as the root bridge.
+* Use EtherChannel on the redundant links connected to the core.
+* Apply STP protections to both end device ports and switch to switch links.
+* Centralize inter VLAN routing on BackboneSW using SVIs.
+* Create a VLSM addressing plan from the `10.60.0.0/26` network.
+* Configure the point to point links using `/30` networks.
+* Connect the site to R1 using a routed link and configure the default route.
+* Provide a separate routed connection to the external partner network.
+* Configure static addressing on the end devices.
+* Verify connectivity and STP behaviour across the complete topology.
 
-The new site is split into two functional areas:
+## Lab Scenario
 
-* **Office** — 9 workstations, general staff.
-* **Industrial Unit** — 3 workstations on the shop floor, next to the loading docks.
+The site is divided into two main areas:
 
-The site also needs two outward-facing connections: one to **R1**, the perimeter router that represents the path out to the wider network, and one to **PARTNER-SW**, a switch that belongs to an external logistics partner sharing the same yard. The partner's network is deliberately kept out of scope — it gets a routed hand-off and nothing more, because nobody needs their VLANs bleeding into someone else's infrastructure.
+* **Office**: 9 workstations used by general staff.
+* **Industrial Unit**: 3 workstations located on the shop floor.
 
-The interesting part of the brief was the middle of the network. Rather than a simple star, the design links **BackboneSW** (the core), **SW1** (Office), **SW2** (Industrial Unit) and **SW3** (a pure distribution switch with no end devices of its own) so that every one of those four switches has a path to every other one. That's on purpose: it turns the Layer 2 core into a small mesh with built-in loops, which is exactly the kind of topology Spanning Tree exists to tame. Two of the links carrying the heaviest traffic (BackboneSW–SW1 and BackboneSW–SW2) are also bundled into EtherChannels, so the design isn't just "redundant," it's redundant *and* faster than a single cable would allow.
+There are also two external connections. **R1** represents the connection towards the wider network, while **PARTNER-SW** represents a switch belonging to an external logistics partner.
 
-### Main Requirements
+The partner network is kept separate from the internal VLANs. The connection between both networks is routed, so there is no Layer 2 extension between the two infrastructures.
 
-* Create a dedicated VLAN for the Office and one for the Industrial Unit.
-* Interconnect BackboneSW, SW1, SW2 and SW3 so that no single link or switch failure isolates a VLAN.
-* Run Rapid PVST+ on every switch and pin BackboneSW as the root bridge for both VLANs.
-* Bundle the redundant links toward the core into EtherChannels using static ("on" mode) channel groups.
-* Protect access ports with PortFast and BPDU Guard.
-* Protect the topology itself with Root Guard on the root's downlinks and Loop Guard on the non-root switches' uplinks.
-* Use a dedicated, unused native VLAN on every trunk — no data ever rides the native VLAN.
-* Disable DTP negotiation on every trunk link.
-* Centralize Inter-VLAN Routing on BackboneSW using SVIs.
-* Subnet the assigned `10.60.0.0/26` block with VLSM, including the two /30 point-to-point links.
-* Configure a default route toward R1, and a routed (non-trunked) hand-off to PARTNER-SW.
-* Configure static IPv4 addressing on all end devices.
-* Verify inter-VLAN connectivity end to end and document the topology, addressing, configuration and verification.
+The main part of the lab is the Layer 2 topology.
 
-### Environment
+**BackboneSW**, **SW1**, **SW2** and **SW3** are interconnected using several redundant links. This creates multiple paths between the switches, which means Spanning Tree is required to prevent Layer 2 loops.
+
+The links between **BackboneSW and SW1** and between **BackboneSW and SW2** are also bundled into EtherChannels. This provides redundancy while allowing the links in each bundle to operate as a single logical connection from the point of view of STP.
+
+SW3 does not have any end devices connected to it. Its main purpose in this lab is to provide additional paths through the Layer 2 topology and make the STP behaviour more interesting to verify.
+
+## Main Requirements
+
+* Create one VLAN for the Office and another for the Industrial Unit.
+* Provide redundant connectivity between BackboneSW, SW1, SW2 and SW3.
+* Run Rapid PVST+ on all switches.
+* Configure BackboneSW as the root bridge for both VLANs.
+* Configure the redundant links towards BackboneSW as EtherChannels using static `on` mode.
+* Enable PortFast and BPDU Guard on access ports.
+* Use Root Guard on the appropriate downlinks from the root switch.
+* Use Loop Guard on the relevant non root switch uplinks.
+* Use a dedicated unused native VLAN on trunk links.
+* Disable DTP negotiation on trunk interfaces.
+* Keep the native VLAN unused for normal network traffic.
+* Configure BackboneSW as the Layer 3 gateway for the internal VLANs using SVIs.
+* Subnet the `10.60.0.0/26` address block using VLSM.
+* Use `/30` networks for the point to point links.
+* Configure a default route from BackboneSW towards R1.
+* Configure a routed connection between BackboneSW and PARTNER-SW.
+* Keep the partner network outside the internal VLANs.
+* Configure static IPv4 addresses on all end devices.
+* Test connectivity between VLANs and towards the external networks.
+* Verify STP, EtherChannel and routing behaviour.
+* Document the topology, addressing plan, configurations and verification results.
+
+## Environment
 
 **GNS3 · GNS3 VM · Cisco IOS**
