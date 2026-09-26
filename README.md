@@ -1,6 +1,6 @@
 # Networking-Labs
 
-Simulated networking labs focused on Cisco technologies, enterprise networking, troubleshooting, and practical network administration.
+Simulated networking projects focused on Cisco technologies, enterprise networking, troubleshooting, and practical network administration.
 
 I am a Networking student using this repository to **practice, document, and progressively develop my networking skills through hands-on labs**. Each laboratory is designed not only to practise configuration, but also to document the topology, addressing plan, configuration process, verification steps, and troubleshooting procedures.
 
