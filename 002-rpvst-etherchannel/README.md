@@ -2,7 +2,8 @@
 
 A Cisco networking lab about building a switched network that refuses to fall over when a cable gets unplugged.
 
-![Lab 002 Topology](images/topology.png)
+<img width="1565" height="1102" alt="lab002" src="https://github.com/user-attachments/assets/8cf24dcd-efd2-424e-9fa2-1174ae18f496" />
+
 
 This lab picks up where **Lab 001** left off with Ferralia Industrial, S.L. The company is opening a small satellite site — an office plus an adjoining industrial unit — and this time a single point of failure isn't an acceptable design. The scenario provided the site layout, the equipment, an IP block, and a not-so-subtle hint that "something broke last time and a truck sat idle in the yard for twenty minutes." Everything else — the redundant Layer 2 design, the EtherChannel bundling, the STP hardening, the VLSM plan, and the routed hand-offs — was designed and built from scratch.
 
