@@ -1,4 +1,4 @@
-# Redundant LAN with RSTP & EtherChannel
+# Redundant LANs with RSTP & EtherChannel
 
 A Cisco networking lab focused on building a redundant switched network using Rapid PVST+, EtherChannel and Layer 3 switching.
 
