@@ -51,7 +51,7 @@ Branch B has two routers, `R2` and `R3`. Each one has its own LAN and its own li
 | R3 G3/0  | R4 G1/0  | Routed P2P        | 192.168.90.12/30 | EIGRP                               |
 | R4 S2/0  | R5 S2/0  | Serial, R4 is DCE | 192.168.90.16/30 | `clock rate 128000`, static default |
 | R2 Fa0/0 | SW2 G2/2 | Access            | VLAN 30          | Branch B Main gateway               |
-| R3 Fa0/0 | SW3 G0/3 | Access            | VLAN 40          | Branch B Terrace gateway            |
+| R3 G1/0  | SW3 G0/3 | Access            | VLAN 40          | Branch B Terrace gateway            |
 | R4 Fa3/0 | SW4      | Access            | VLAN 50          | Server Room gateway                 |
 
 ## 4. VLAN Design
@@ -68,7 +68,7 @@ Five VLANs are used, each one local to a single switch. There are no trunks betw
 
 The only trunk of the lab is `SW1 ↔ R1`. It uses VLAN `999` as an unused native VLAN, allows only VLANs 10 and 20, and has DTP disabled with `switchport nonegotiate`.
 
-VTP is configured in transparent mode on the switches where it was applied, so VLAN administration remains local to each switch.
+VTP is configured in transparent mode on all four switches, so VLAN administration remains local to each switch.
 
 ## 5. VLSM Addressing
 
@@ -77,7 +77,7 @@ VTP is configured in transparent mode on the switches where it was applied, so V
 | Segment                  | Required | Network       | Mask            | Usable range | Broadcast | Gateway                 |
 | ------------------------ | -------: | ------------- | --------------- | ------------ | --------- | ----------------------- |
 | VLAN 30 Branch B Main    |       10 | 10.90.0.0/28  | 255.255.255.240 | .1 – .14     | .15       | 10.90.0.14 (R2 Fa0/0)   |
-| VLAN 40 Branch B Terrace |        6 | 10.90.0.16/28 | 255.255.255.240 | .17 – .30    | .31       | 10.90.0.30 (R3 Fa0/0)   |
+| VLAN 40 Branch B Terrace |        6 | 10.90.0.16/28 | 255.255.255.240 | .17 – .30    | .31       | 10.90.0.30 (R3 G1/0)    |
 | VLAN 10 Branch A Coffee  |        6 | 10.90.0.32/29 | 255.255.255.248 | .33 – .38    | .39       | 10.90.0.38 (R1 G1/0.10) |
 | VLAN 20 Branch A BR      |        2 | 10.90.0.40/29 | 255.255.255.248 | .41 – .46    | .47       | 10.90.0.46 (R1 G1/0.20) |
 | VLAN 50 Server Room      |        4 | 10.90.0.48/29 | 255.255.255.248 | .49 – .54    | .55       | 10.90.0.54 (R4 Fa3/0)   |
@@ -96,7 +96,7 @@ The remaining `10.90.0.56 – 10.90.0.255` is reserved for future use.
 
 Branch B Terrace needs only six hosts, but it received a `/28` so that the two Branch B LANs fill the `10.90.0.0/27` block exactly.
 
-> **Design note:** `Branch A Coffee` uses a `/29`. A `/29` provides six usable addresses, one of which is used by the gateway, leaving five addresses for end devices. Therefore, if the requirement means six end devices **plus** the gateway, a `/28` would be required. In this lab, only one end device is configured on this LAN, so the `/29` does not prevent the implemented tests.
+> **Note:** `Branch A Coffee` needs six hosts plus the gateway, which requires seven usable addresses and therefore a `/28`. This was an oversight in the VLSM planning: the LAN received a `/29`, which leaves five usable addresses for end devices once the gateway is assigned. The addressing was not corrected in this lab. Only one end device (`PC1`) is configured on this LAN, so the implemented tests are not affected.
 
 ### Link block: 192.168.90.0/24
 
@@ -133,7 +133,7 @@ The physical interface has no IP address. Traffic between VLAN 10 and VLAN 20 go
 
 `R1` has no static or manually configured default route. Its remote routes, including the default route, are learned from `R4` through RIP.
 
-The LAN-facing interfaces are intended to be passive so that RIP updates are not exchanged with end devices.
+The LAN subinterfaces `G1/0.10` and `G1/0.20` are configured as passive, so RIP updates are not sent to end devices.
 
 ### 7.2 EIGRP domain (Branch B)
 
@@ -145,7 +145,7 @@ The LAN-facing interfaces are intended to be passive so that RIP updates are not
 | R3 ↔ R4 | G3/0 – G1/0 |
 | R2 ↔ R3 | S2/0 – S2/0 |
 
-The LAN interfaces (`R2 Fa0/0`, `R3 Fa0/0`, `R4 Fa3/0`) are passive, so they do not form EIGRP neighbor relationships.
+The LAN interfaces (`R2 Fa0/0`, `R3 G1/0`, `R4 Fa3/0`) are passive, so they do not form EIGRP neighbor relationships.
 
 `R2` and `R3` also have loopbacks (`2.2.2.2/32` and `3.3.3.3/32`) used as their EIGRP router IDs. The loopbacks are passive and advertised as `/32` routes.
 
@@ -153,16 +153,9 @@ The LAN interfaces (`R2 Fa0/0`, `R3 Fa0/0`, `R4 Fa3/0`) are passive, so they do 
 
 #### Path selection
 
-The two Gigabit paths through `R4` have a lower EIGRP metric than the path through the R2–R3 serial link.
-
 The serial interfaces were configured with a `clock rate` of `128000` on the DCE side. However, the `bandwidth` command was not modified, so EIGRP uses the default interface bandwidth of `1544 kbps` when calculating the metric. The `clock rate` controls serial clocking but does not change the bandwidth value used by EIGRP.
 
-| Path                                               | Metric (as seen in the routing tables) |
-| -------------------------------------------------- | -------------------------------------: |
-| R2 → R4 → R3 LAN (Gigabit)                         |                                  28672 |
-| R4 → R3 → serial link (R4 view of 192.168.90.8/30) |                                2170112 |
-
-`R2` and `R3` reach each other's LAN through `R4` because the Gigabit path has a lower EIGRP metric than the alternative path through the serial link.
+In the routing tables, `R2` and `R3` reach each other's LAN through `R4` and not through the R2–R3 serial link.
 
 The serial link provides an alternative physical path between `R2` and `R3`. Whether it is installed as a feasible successor for a particular destination depends on the EIGRP topology and the feasibility condition.
 
@@ -186,7 +179,7 @@ Seed metric decisions:
 * **RIP → EIGRP:** RIP does not provide an EIGRP composite metric, so a seed metric must be defined. `10000 kbps` and `1000 µs` provide a fixed metric for the redistributed routes. Reliability `255` and load `1` are the best-case values and, with the default K values (`K1=K3=1`), they do not affect the metric.
 * **EIGRP → RIP:** RIP only uses hop count. All imported routes enter the RIP domain through `R4`, which is the only exit from `R1`, so a seed metric of `1` is sufficient.
 
-The command `network 192.168.90.0` initially enabled RIP on the R4 interfaces belonging to the `192.168.90.0/24` address space. This included the links towards `R2`, `R3` and `R5`. The unnecessary interfaces were subsequently configured as passive after this was identified.
+The command `network 192.168.90.0` initially enabled RIP on the R4 interfaces belonging to the `192.168.90.0/24` address space. This included the links towards `R2`, `R3` and `R5`. The unnecessary interfaces (`G4/0`, `G1/0` and `S2/0`, towards `R2`, `R3` and `R5`) were subsequently configured as passive after this was identified.
 
 Because RIP is redistributed into EIGRP, RIP-learned or RIP-installed routes can appear in the EIGRP domain as external routes. Similarly, EIGRP routes are redistributed into RIP, allowing `R1` to learn Branch B, Server Room and other redistributed routes.
 
@@ -233,6 +226,8 @@ The routing tables of `R1`, `R2`, `R3` and `R4` were checked after convergence:
 * `R2` and `R3`: EIGRP routes for the Server Room and the opposite Branch B router, external routes (`D EX`) for Branch A, and the external EIGRP default route towards `R4`.
 * `R4`: RIP routes for Branch A via `192.168.90.1`, EIGRP routes for Branch B, the connected Server Room LAN, and the static default route towards `192.168.90.18`.
 
+> **Note:** the routing-table captures in [Host Config & Connectivity verification](Host%20Config%20%26%20Conenectivity%20verification.md) were taken before the mask of the Terrace gateway was corrected, so the Terrace network appears there as `10.90.0.28/30` instead of `10.90.0.16/28`. The ICMP tests involving the Terrace LAN were run after the correction.
+
 End-to-end connectivity was then tested with ICMP. The TTL of each reply shows how many routers were crossed:
 
 | Source                  | Destination                   | TTL | Routers crossed |
@@ -248,12 +243,6 @@ End-to-end connectivity was then tested with ICMP. The TTL of each reply shows h
 
 These tests confirm router-on-a-stick inside Branch A, mutual redistribution between the RIP and EIGRP domains, and connectivity between both branches and the Server Room.
 
-## 10. Known Limitation
-
-* **Passive interfaces on R1 subinterfaces.** `R1` uses `G1/0.10` and `G1/0.20` for the LANs. `passive-interface GigabitEthernet1/0` was configured on the parent interface, but the subinterfaces are separate logical interfaces for RIP.
-
-  > **Note:** The passive status of `G1/0.10` and `G1/0.20` should be verified with `show ip protocols` to confirm whether the configured command also prevents RIP updates from being sent through the LAN subinterfaces. If necessary, the subinterfaces can be configured explicitly as passive.
-
-## 11. Environment
+## 10. Environment
 
 **GNS3 · GNS3 VM · Cisco IOS**
