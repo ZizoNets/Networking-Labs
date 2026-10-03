@@ -22,4 +22,6 @@ VLAN 50 was then named explicitly as `Server Room`.
 <img width="886" height="59" alt="image" src="https://github.com/user-attachments/assets/6f16d5d4-0f5d-400d-9865-cbf6d5b1ed76" />
 
 
+VTP was also configured in transparent mode on `SW4` so VLAN configuration remains local to the switch. The screenshot of this command was not captured.
+
 The configuration was saved with `write`.
