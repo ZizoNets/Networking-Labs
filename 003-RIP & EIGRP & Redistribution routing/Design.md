@@ -31,8 +31,8 @@ The network was designed from the provided requirements, equipment and two addre
 * Four switches are used: `SW1` in Branch A, `SW2` and `SW3` in Branch B (one per LAN), and `SW4` in the Server Room.
 * The Server Room has a real LAN with four servers behind `SW4` instead of a loopback.
 * Branch A uses router-on-a-stick. Lab 002 used a Layer 3 switch, so this is the different approach.
-* Only a few end devices were configured and tested (`PC1`, `PC8`, `PC21`, `Server1`). The addressing plan still represents the intended capacity of each LAN.
-* Route summarization was not configured.
+* Only a few end devices were configured and tested (`PC1`, `PC8`, `PC21`, `Server1`) to save some time. The addressing plan still represents the intended capacity of each LAN.
+
 
 ## 3. Topology
 
