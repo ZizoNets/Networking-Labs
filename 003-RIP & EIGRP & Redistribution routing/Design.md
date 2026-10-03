@@ -1,6 +1,7 @@
 # RIP, EIGRP & Mutual Redistribution
 
 A Cisco lab focused on connecting a RIPv2 domain and an EIGRP domain through a border router, using router-on-a-stick, VLSM, mutual redistribution and a default route propagated from a simulated ISP.
+
 <img width="2240" height="1454" alt="lab003" src="https://github.com/user-attachments/assets/87163be2-1a0c-41c5-a271-1eeb2f3793b9" />
 
 
