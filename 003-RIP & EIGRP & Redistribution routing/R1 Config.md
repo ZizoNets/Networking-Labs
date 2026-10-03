@@ -41,7 +41,13 @@ The LAN interface `G1/0` was configured as passive so no RIP updates are sent to
 
 The RIP section of the running configuration was checked with `show running-config | section router rip`.
 
-> **Note:** passive state is configured per interface. The passive command was applied to the physical `G1/0`, while the LANs use the subinterfaces `G1/0.10` and `G1/0.20`. It should be verified with `show ip protocols` that these subinterfaces do not send updates, or they should be added explicitly with `passive-interface G1/0.10` and `passive-interface G1/0.20`.
+Passive state is configured per interface and the LANs use the subinterfaces `G1/0.10` and `G1/0.20`, so both were also configured as passive explicitly:
+
+```text
+router rip
+ passive-interface GigabitEthernet1/0.10
+ passive-interface GigabitEthernet1/0.20
+```
 
 <img width="886" height="116" alt="image" src="https://github.com/user-attachments/assets/17e9ea60-a15a-4d4c-9ece-2af2da36646a" />
 
