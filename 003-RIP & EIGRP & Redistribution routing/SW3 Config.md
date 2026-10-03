@@ -22,4 +22,6 @@ During verification, `PC21` could not reach its gateway. The cause was a duplex 
 <img width="886" height="109" alt="image" src="https://github.com/user-attachments/assets/44dca637-c8b2-4f05-a058-b6a79790d687" />
 
 
+VTP was also configured in transparent mode on `SW3` so VLAN configuration remains local to the switch. The screenshot of this command was not captured.
+
 The configuration was saved with `write`.
