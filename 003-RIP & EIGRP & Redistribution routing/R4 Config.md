@@ -60,7 +60,7 @@ RIP routes were redistributed into EIGRP with a seed metric:
 redistribute rip metric 10000 100 255 1 1500
 ```
 
-The values are bandwidth in kbps, delay in tens of microseconds, reliability, load and MTU. They represent a modest 10 Mbps path with 1000 µs of delay: worse than the Gigabit links of the EIGRP domain but better than the 128 kbps serial link. The routes appear in `R2` and `R3` as external routes (`D EX`).
+The values are bandwidth in kbps, delay in tens of microseconds, reliability, load and MTU. They represent a modest 10 Mbps path with 1000 µs of delay: worse than the Gigabit links of the EIGRP domain. The serial links only received a `clock rate`, so EIGRP still calculates them with the default bandwidth of `1544 kbps`. The routes appear in `R2` and `R3` as external routes (`D EX`).
 
 ## RIP
 
@@ -77,7 +77,16 @@ redistribute eigrp 1 metric 1
 
 RIP only uses hop count, and all the imported routes enter the RIP domain through `R4`, so a seed metric of `1` is sufficient. With this command, `R1` learns the Branch B, Server Room and link networks.
 
-> **Note:** `network 192.168.90.0` initially enabled RIP on all four `192.168.90.x` interfaces of `R4`, including the links towards `R2`, `R3` and the ISP, where no RIP neighbor exists. After noticing this, the unnecessary interfaces were configured as passive. This prevents RIP updates from being sent through those interfaces while still allowing their connected networks to be advertised. No screenshot was captured after making this adjustment.
+> **Note:** `network 192.168.90.0` initially enabled RIP on all four `192.168.90.x` interfaces of `R4`, including the links towards `R2`, `R3` and the ISP, where no RIP neighbor exists. After noticing this, the unnecessary interfaces were configured as passive:
+>
+> ```text
+> router rip
+>  passive-interface GigabitEthernet4/0
+>  passive-interface GigabitEthernet1/0
+>  passive-interface Serial2/0
+> ```
+>
+> This prevents RIP updates from being sent through those interfaces while still allowing their connected networks to be advertised. No screenshot was captured after making this adjustment.
 
 ## Default route
 
