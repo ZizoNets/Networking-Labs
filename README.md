@@ -23,8 +23,8 @@ Cisco is my main focus, but I'll add other vendors and technologies over time: F
 
 ## Learning approach
 
-I created this repository to learn, and I document everything as I go. Writing it all down also keeps me motivated to study, because every lab is a situation that can happen in a real network.
+I created this repository to document my learning process and put networking concepts into practice. Each lab is based on a scenario that could occur in a real-world network, helping me understand how different technologies work and how they are applied in practice.
 
-What I want from it is to build the best skills I can in networking, get better at making decisions when a problem has more than one possible solution, and automate commands and repetitive configuration tasks.
+My goal is to build strong networking skills, improve my ability to troubleshoot and make informed decisions when multiple solutions are possible, and gradually automate repetitive configuration tasks and command sequences.
 
-If you want to use the labs too, read the scenario and objectives in `Design.md` and try to build it on your own first. Then compare your design with mine and see how close it is.
+
