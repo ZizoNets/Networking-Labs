@@ -21,8 +21,10 @@ The labs run on GNS3 with the GNS3 VM, using Cisco IOS images with the correspon
 
 Cisco is my main focus, but I'll add other vendors and technologies over time: Fortinet, Aruba, Juniper, MikroTik, Palo Alto Networks and Ubiquiti, and topics beyond switching and routing such as firewalls, wireless and network monitoring.
 
-## Where it's going
+## Learning approach
 
-The first labs cover the basics: VLANs, switching, routing, subnetting and inter-VLAN routing. After that they get harder, with dynamic routing, redundancy, security features and troubleshooting.
+I created this repository to learn, and I document everything as I go. Writing it all down also keeps me motivated to study, because every lab is a situation that can happen in a real network.
 
-In each lab I try to understand why a technology is used, how the pieces interact and how to fix it when the result isn't what I expected. The repository is my study log and, at the same time, my portfolio.
+What I want from it is to build the best skills I can in networking, get better at making decisions when a problem has more than one possible solution, and automate commands and repetitive configuration tasks.
+
+If you want to use the labs too, read the scenario and objectives in `Design.md` and try to build it on your own first. Then compare your design with mine and see how close it is.
