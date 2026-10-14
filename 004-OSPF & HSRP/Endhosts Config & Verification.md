@@ -130,32 +130,7 @@ Both hotel routers are `FULL` neighbors: `R1` (`1.1.1.1`) as `DROTHER` and `R2` 
 
 Router ID `3.3.3.3`, two networks in Area 0 and `Loopback3` as passive. It also says `Backbone` is an autonomous system boundary router, because it originates the default route.
 
-`show ip route` on `Backbone`:
 
-```text
-Gateway of last resort is 0.0.0.0 to network 0.0.0.0
-
-S*    0.0.0.0/0 is directly connected, Null0
-      1.0.0.0/32 is subnetted, 1 subnets
-O        1.1.1.1 [110/11] via 10.40.0.59, 01:14:19, GigabitEthernet1/0
-      2.0.0.0/32 is subnetted, 1 subnets
-O        2.2.2.2 [110/11] via 10.40.0.58, 01:14:19, GigabitEthernet1/0
-      3.0.0.0/32 is subnetted, 1 subnets
-C        3.3.3.3 is directly connected, Loopback3
-      10.0.0.0/8 is variably subnetted, 6 subnets, 5 masks
-O        10.40.0.0/27 [110/20] via 10.40.0.59, 01:14:19, GigabitEthernet1/0
-                      [110/20] via 10.40.0.58, 01:14:19, GigabitEthernet1/0
-O        10.40.0.32/28 [110/20] via 10.40.0.59, 01:14:19, GigabitEthernet1/0
-                       [110/20] via 10.40.0.58, 00:01:43, GigabitEthernet1/0
-O        10.40.0.48/29 [110/20] via 10.40.0.59, 01:14:19, GigabitEthernet1/0
-                       [110/20] via 10.40.0.58, 00:01:43, GigabitEthernet1/0
-C        10.40.0.56/29 is directly connected, GigabitEthernet1/0
-L        10.40.0.57/32 is directly connected, GigabitEthernet1/0
-O        10.40.0.64/30 [110/20] via 10.40.0.59, 00:54:38, GigabitEthernet1/0
-                       [110/20] via 10.40.0.58, 01:14:19, GigabitEthernet1/0
-```
-
-The default route is the only static route. Every user VLAN has two equal-cost paths, one through `R1` (`10.40.0.59`) and one through `R2` (`10.40.0.58`). The cost of 20 is the 10 of the shared segment plus the 10 of the VLAN interface on the router. The second path to VLANs 20 and 30 shows up with a recent timestamp (`00:01:43`) because it appeared once `R2` started advertising them.
 
 ## Connectivity
 
