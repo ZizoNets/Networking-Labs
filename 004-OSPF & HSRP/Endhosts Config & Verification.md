@@ -89,37 +89,44 @@ The routing table has the default route `O*E2 0.0.0.0/0` via `10.40.0.57` (`Back
 ## R2
 
 
-<img width="886" height="121" alt="image" src="https://github.com/user-attachments/assets/a330d319-6745-4336-914f-b27091e14ac7" />
+<img width="886" height="156" alt="image" src="https://github.com/user-attachments/assets/e485a3a0-877d-45e6-8dfa-e7a3bf6e0830" />
+
 
 
 `show standby brief` shows `R2` Active for group 10 with priority 110, and Standby for groups 20 and 30, where `R1` (`10.40.0.46` and `10.40.0.54`) is Active.
 
 
+<img width="886" height="121" alt="image" src="https://github.com/user-attachments/assets/b8aa9c2e-1df1-40c6-b12a-adc77e1aed25" />
 
 
 `R2` has `FULL` adjacencies with `R1` (`1.1.1.1`) over `G3/0` and over `G4/0`, and with `Backbone` (`3.3.3.3`) as DR.
 
+<img width="886" height="118" alt="image" src="https://github.com/user-attachments/assets/a5891814-43b4-4162-8bfe-45e8d9d610a0" />
 
 
 
 
 Router ID `2.2.2.2`, and the five networks plus the loopback in Area 0, including `10.40.0.32/28` and `10.40.0.48/29`. `G1/0`, `G5/0`, `G5/0.20`, `G5/0.30` and `Loopback2` are passive.
 
-<!-- IMAGE 19 of 26: R2 show ip route -->
+<img width="886" height="496" alt="image" src="https://github.com/user-attachments/assets/cc395549-a8e6-47d2-b8e2-ef43bc96d70c" />
+
 
 Default route `O*E2 0.0.0.0/0` via `10.40.0.57`. The loopback of `R1` has two equal-cost paths, through `G3/0` and `G4/0`, and the loopback of `Backbone` is reached through `10.40.0.57`. The three VLANs and the two transit networks are directly connected.
 
 ## Backbone
 
-<!-- IMAGE 20 of 26: Backbone show ip ospf interface brief -->
+<img width="886" height="92" alt="image" src="https://github.com/user-attachments/assets/cbe54c1c-f053-469b-8abd-cf981450c15d" />
+
 
 `Lo3` and `Gi1/0` are in Area 0. `Gi1/0` costs 10, `Backbone` is the DR on it, and it has two neighbors.
 
-<!-- IMAGE 21 of 26: Backbone show ip ospf neighbor -->
+<img width="886" height="91" alt="image" src="https://github.com/user-attachments/assets/54bfc53d-3392-48fb-96a2-fe355599fe2c" />
+
 
 Both hotel routers are `FULL` neighbors: `R1` (`1.1.1.1`) as `DROTHER` and `R2` (`2.2.2.2`) as `BDR`. `Backbone` has the highest router ID and all priorities are the default, so it ended up as DR. DR election is not preemptive, so the result also depends on the order the routers came up.
 
-<!-- IMAGE 22 of 26: Backbone show ip protocols -->
+<img width="886" height="589" alt="image" src="https://github.com/user-attachments/assets/69fb1ad1-730c-403f-9ba3-fe97481d6d78" />
+
 
 Router ID `3.3.3.3`, two networks in Area 0 and `Loopback3` as passive. It also says `Backbone` is an autonomous system boundary router, because it originates the default route.
 
@@ -152,7 +159,8 @@ The default route is the only static route. Every user VLAN has two equal-cost p
 
 ## Connectivity
 
-<!-- IMAGE 23 of 26: PC8 pings to 10.40.0.28, 10.40.0.49 and 10.40.0.1 -->
+<img width="886" height="479" alt="image" src="https://github.com/user-attachments/assets/91399825-3311-45c7-82ff-61078a2449e4" />
+
 
 `PC8` pinged the Guests virtual IP (`10.40.0.28`), a Security host (`10.40.0.49`) and a Guests host (`10.40.0.1`). All five ICMP packets were received in each test.
 
@@ -160,7 +168,8 @@ The replies from the two hosts have a TTL of 63. The PCs start at 64, so the rep
 
 The reply from `10.40.0.28` has a TTL of 255, the starting TTL of a Cisco router, so it didn't cross any router on the way back. That fits with `R2` owning that virtual IP and also having its own subnet in VLAN 20: it can answer `PC8` directly, while `PC8` reaches it through `R1`, its gateway. So the way there and the way back are not the same path.
 
-<!-- IMAGE 24 of 26: PC8 pings to 2.2.2.2 and 3.3.3.3 -->
+<img width="886" height="300" alt="image" src="https://github.com/user-attachments/assets/33e650c9-d35d-446d-8b34-9ed82dfd3525" />
+
 
 `PC8` also reached the loopback of `R2` (`2.2.2.2`) and the loopback of `Backbone` (`3.3.3.3`). The reply from `2.2.2.2` has a TTL of 255 for the same reason as before, and the one from `3.3.3.3` has a TTL of 254, so it crossed one router on the way back.
 
@@ -172,13 +181,15 @@ Both tests were done by powering off the router in GNS3. I didn't capture `show 
 
 ### R1 powered off
 
-<!-- IMAGE 25 of 26: PC8 pings with R1 off -->
+<img width="886" height="503" alt="image" src="https://github.com/user-attachments/assets/f0753515-984f-4a5d-b13b-abe026ad6873" />
+
 
 With `R1` off, `PC8` (Admin) pinged the Guests virtual IP, a Security host and the loopback of `Backbone`, and all of them replied. `R1` is the Active gateway for Admin, so `R2` must have taken over as gateway for VLAN 20. The TTL values match the previous test: 63 for the host that crossed a router, 255 for the address on `R2` itself and 254 for `Backbone`.
 
 ### R2 powered off
 
-<!-- IMAGE 26 of 26: PC1 pings with R2 off (GNS3 screenshot with R2's links down) -->
+<img width="886" height="653" alt="image" src="https://github.com/user-attachments/assets/3c62a460-ad9d-4b87-8733-95e218eab50b" />
+
 
 With `R2` off, `PC1` (Guests) pinged an Admin host (`10.40.0.33`), a Security host (`10.40.0.49`) and the loopback of `Backbone`, and all of them replied. `R2` is the Active gateway for Guests, so `R1` must have taken over as gateway for VLAN 10. The screenshot also shows the links of `R2` down in the topology.
 
