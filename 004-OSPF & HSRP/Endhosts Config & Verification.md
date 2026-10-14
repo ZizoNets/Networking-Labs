@@ -40,7 +40,7 @@ CDP shows `R1` on `G1/1` (its `Gig 1/0`) and `R2` on `G1/2` (its `Gig 5/0`), so 
 <img width="886" height="347" alt="image" src="https://github.com/user-attachments/assets/df131794-6cee-47b0-9ffb-c94a990eea32" />
 
 
-Both trunks are up with 802.1Q, and VLANs 20 and 30 are allowed and forwarding. The native VLAN is 99 on `G1/1` and 1 on `G1/2`, which is the mismatch mentioned in the README notes.
+Both trunks are up with 802.1Q, and VLANs 20 and 30 are allowed and forwarding. The native VLAN mismatch between `G1/1` and `G1/2` was corrected, and both trunks are now configured with native VLAN 99.
 
 ## SW2
 
