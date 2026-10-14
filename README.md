@@ -1,54 +1,28 @@
 # Networking-Labs
 
-Hands-on networking labs built around Cisco technologies, enterprise scenarios, troubleshooting and day-to-day administration.
+Networking labs that I build and document as I study. Most of them are Cisco, simulated in GNS3, and each one comes with its design, the configuration of every device and the tests that show it works.
 
-I'm a networking student and I use this repository to practise, document and track my progress. Each lab is a complete exercise: the design, the configuration of every device, and the tests that prove it works.
+## How each lab is organised
 
-## Repository structure
-
-Every lab lives in its own folder and follows the same layout:
+Every lab has its own folder with the same layout:
 
 ```
 Lab-XXX-Name/
-├── Design.md        # Main design of the lab
-├── configs/         # Individual configuration of each device
-└── verification/    # Functionality tests and verification
+├── Design.md
+├── configs/
+└── verification/
 ```
 
-### 1. `Design.md`
+`Design.md` is where a lab starts. It has the scenario, the objectives, the topology, the addressing plan and the reasoning behind the design decisions. Next to it, `configs/` holds one file per device, so each one can be read or reproduced on its own. `verification/` has the tests that confirm everything works: connectivity checks, the commands I run with their expected output and, in some labs, troubleshooting scenarios.
 
-The starting point of every lab. It contains:
+## Environment
 
-* Context and scenario.
-* Objectives and requirements.
-* Network topology.
-* Addressing plan (IP, VLANs, subnets).
-* Design decisions and the reasoning behind them.
+The labs run on GNS3 with the GNS3 VM, using Cisco IOS images with the corresponding licensing.
 
-### 2. Device configurations
+Cisco is my main focus, but I'll add other vendors and technologies over time: Fortinet, Aruba, Juniper, MikroTik, Palo Alto Networks and Ubiquiti, and topics beyond switching and routing such as firewalls, wireless and network monitoring.
 
-The full configuration of each device (routers, switches, firewalls, etc.), one file per device, so each one can be reviewed and reproduced on its own.
+## Where it's going
 
-### 3. Verification
+The first labs cover the basics: VLANs, switching, routing, subnetting and inter-VLAN routing. After that they get harder, with dynamic routing, redundancy, security features and troubleshooting.
 
-The functionality tests that validate the lab:
-
-* Connectivity tests.
-* Verification commands and expected output.
-* Troubleshooting scenarios, when the lab includes them.
-
-## Lab environment
-
-* **GNS3** with the **GNS3 VM** for network emulation.
-* Cisco IOS images with the corresponding licensing.
-* Simulated enterprise topologies.
-
-My main focus is Cisco, but I'll gradually add other technologies and vendors as I progress, such as **Fortinet, Aruba, Juniper, MikroTik, Palo Alto Networks and Ubiquiti**. The aim is to work with different architectures, operating systems and vendor-specific implementations, and to cover areas beyond switching and routing like firewalls, wireless and network monitoring.
-
-## Learning approach
-
-The goal is to understand why each technology is used, how the components interact, and how to troubleshoot when the result isn't the expected one, rather than just copy a working configuration.
-
-Early labs cover the fundamentals: **VLANs, switching, routing, subnetting and inter-VLAN routing**. Later labs add more advanced topics: dynamic routing, redundancy, security features and troubleshooting scenarios.
-
-This repository is both my study record and my technical portfolio.
+In each lab I try to understand why a technology is used, how the pieces interact and how to fix it when the result isn't what I expected. The repository is my study log and, at the same time, my portfolio.
